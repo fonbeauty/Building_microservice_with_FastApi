@@ -17,12 +17,12 @@ def test_users(app_url):
     assert response.status_code == HTTPStatus.OK
 
     users = response.json()
-    for user in users:
+    for user in users['items']:
         User.model_validate(user)
 
 
 def test_users_no_duplicates(users_data):
-    users_ids = [user["id"] for user in users_data]
+    users_ids = [user["id"] for user in users_data['items']]
     assert len(users_ids) == len(set(users_ids))
 
 
