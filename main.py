@@ -1,7 +1,6 @@
 import json
 from http import HTTPStatus
 
-
 import uvicorn
 from fastapi import FastAPI, HTTPException
 
@@ -11,6 +10,11 @@ from models.user import User
 app = FastAPI()
 
 users: list[User] = []
+
+
+@app.get("/", status_code=HTTPStatus.OK)
+def service_status() -> dict[str, str]:
+    return {"message": "Service is running"}
 
 
 @app.get("/status", status_code=HTTPStatus.OK)
