@@ -5,13 +5,6 @@ import requests
 from models.user import User
 
 
-@pytest.fixture
-def users_data(app_url):
-    response = requests.get(f"{app_url}/api/users/")
-    assert response.status_code == HTTPStatus.OK
-    return response.json()
-
-
 def test_users(app_url):
     response = requests.get(f"{app_url}/api/users/")
     assert response.status_code == HTTPStatus.OK
