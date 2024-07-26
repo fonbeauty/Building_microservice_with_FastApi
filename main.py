@@ -1,9 +1,9 @@
 import json
 from http import HTTPStatus
 
-
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi_pagination import Page, add_pagination, paginate
 
 from models.app_status import AppStatus
 from models.user import User
@@ -11,6 +11,11 @@ from models.user import User
 app = FastAPI()
 
 users: list[User] = []
+
+
+@app.get("/", status_code=HTTPStatus.OK)
+def service_status() -> dict[str, str]:
+    return {"message": "Service is running"}
 
 
 @app.get("/status", status_code=HTTPStatus.OK)
@@ -27,10 +32,12 @@ def get_user(user_id: int) -> User:
     return users[user_id - 1]
 
 
-@app.get("/api/users/", status_code=HTTPStatus.OK)
-def get_users() -> list[User]:
-    return users
+@app.get("/api/users/", status_code=HTTPStatus.OK, response_model=Page[User])
+def get_users() -> Page[User]:
+    return paginate(users)
 
+
+add_pagination(app)
 
 if __name__ == "__main__":
     with open("users.json") as f:
