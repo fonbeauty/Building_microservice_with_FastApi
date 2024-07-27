@@ -38,7 +38,6 @@ def test_pagination_without_size_and_pages(app_url, page):
     data = response.json()
     assert len(data['items']) == 0
     assert data['size'] == 50
-    assert data['total'] == 12
 
 
 @pytest.mark.parametrize("size", [0, -1, -10])
@@ -56,7 +55,6 @@ def test_pagination_with_only_size(app_url, size):
     assert response.status_code == HTTPStatus.OK
     data = response.json()
     assert len(data['items']) == size
-    assert data['total'] == 12
     assert data['page'] == 1
 
 

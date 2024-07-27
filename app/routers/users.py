@@ -4,6 +4,8 @@ from fastapi import APIRouter, HTTPException
 from app.database import users
 from app.models.user import User, UserCreate, UserUpdate
 from fastapi_pagination import Page, paginate
+from pydantic import EmailStr, HttpUrl, ValidationError
+
 
 router = APIRouter(prefix="/api/users")
 
@@ -26,7 +28,11 @@ def get_users() -> Page[User]:
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 def create_user(user: User) -> User:
-    UserCreate.model_validate(user.model_dump())
+    try:
+        UserCreate.model_validate(user.model_dump())
+    except ValidationError as e:
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=e.errors())
+
     return users.create_user(user)
 
 
@@ -34,7 +40,12 @@ def create_user(user: User) -> User:
 def update_user(user_id: int, user: User) -> User:
     if user_id < 1:
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid user id")
-    UserUpdate.model_validate(user.model_dump())
+
+    try:
+        UserUpdate.model_validate(user.model_dump())
+    except ValidationError as e:
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=e.errors())
+
     return users.update_user(user_id, user)
 
 
@@ -42,8 +53,10 @@ def update_user(user_id: int, user: User) -> User:
 def delete_user(user_id: int):
     if user_id < 1:
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid user id")
+
+    user = users.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
+
     users.delete_user(user_id)
     return {"message": "User deleted"}
-
-
-
