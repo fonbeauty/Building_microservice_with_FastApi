@@ -3,14 +3,15 @@ from http import HTTPStatus
 import pytest
 import requests
 from models.user import User
+from models.paginated import PaginatedResponse
 
 
 def test_users(app_url):
     response = requests.get(f"{app_url}/api/users/")
     assert response.status_code == HTTPStatus.OK
 
-    users = response.json()
-    for user in users['items']:
+    users = PaginatedResponse.model_validate(response.json())
+    for user in users.items:
         User.model_validate(user)
 
 
@@ -24,7 +25,7 @@ def test_user(app_url, user_id):
     response = requests.get(f"{app_url}/api/users/{user_id}")
     assert response.status_code == HTTPStatus.OK
 
-    user = response.json()
+    user = User.model_validate(response.json())
     User.model_validate(user)
 
 
