@@ -3,7 +3,6 @@ from http import HTTPStatus
 import pytest
 import requests
 from models.user import User
-from models.paginated import PaginatedResponse
 
 
 def test_users(app_url):
