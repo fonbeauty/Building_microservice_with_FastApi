@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from app.database import users
 from app.models.user import User, UserCreate, UserUpdate
 from fastapi_pagination import Page, paginate
-from pydantic import EmailStr, HttpUrl, ValidationError
+from pydantic import ValidationError
 
 
 router = APIRouter(prefix="/api/users")

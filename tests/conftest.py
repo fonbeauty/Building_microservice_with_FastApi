@@ -25,7 +25,6 @@ def users_data(app_url):
 
 @pytest.fixture(scope="module")
 def fill_test_data(app_url):
-
     with open("users.json") as f:
         test_data_users = json.load(f)
     api_users = []

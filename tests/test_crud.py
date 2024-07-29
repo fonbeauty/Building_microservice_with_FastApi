@@ -2,19 +2,25 @@ from http import HTTPStatus
 
 import requests
 from utils.random_data import generate_random_data
+from app.models.user import UserResponse
 
 
-def test_create_user(app_url):
+def create_user(app_url):
     name, surname, email, avatar = generate_random_data()
     response = requests.post(f"{app_url}/api/users/",
                              json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
     assert response.status_code == HTTPStatus.CREATED
-    user = response.json()
-    assert user["first_name"] == name
-    assert user["last_name"] == surname
-    assert user["email"] == email
-    assert user["avatar"] == avatar
-    assert user["id"] is not None
+    response = UserResponse.model_validate(response.json())
+    return response, name, surname, email, avatar
+
+
+def test_create_user(app_url):
+    user, name, surname, email, avatar = create_user(app_url)
+    assert user.first_name == name
+    assert user.last_name == surname
+    assert user.email == email
+    assert str(user.avatar) == avatar
+    assert user.id is not None
 
 
 def test_update_user(app_url, fill_test_data):
@@ -23,12 +29,12 @@ def test_update_user(app_url, fill_test_data):
     response = requests.patch(f"{app_url}/api/users/{user_id}",
                               json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
     assert response.status_code == HTTPStatus.OK
-    user = response.json()
-    assert user["first_name"] == name
-    assert user["last_name"] == surname
-    assert user["email"] == email
-    assert user["avatar"] == avatar
-    assert user["id"] == user_id
+    user = UserResponse.model_validate(response.json())
+    assert user.first_name == name
+    assert user.last_name == surname
+    assert user.email == email
+    assert str(user.avatar) == avatar
+    assert user.id == user_id
 
 
 def test_delete_user(app_url, fill_test_data):
@@ -41,23 +47,20 @@ def test_delete_user(app_url, fill_test_data):
 
 
 def test_crud(app_url):
-    name, surname, email, avatar = generate_random_data()
-    response = requests.post(f"{app_url}/api/users/",
-                             json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
-    assert response.status_code == HTTPStatus.CREATED
-    assert response.json()["first_name"] == name
-    user_id = response.json()["id"]
+    user, name, surname, email, avatar = create_user(app_url)
+    assert user.first_name == name
+    user_id = user.id
 
     response = requests.get(f"{app_url}/api/users/{user_id}")
     assert response.status_code == HTTPStatus.OK
-    user = response.json()
-    assert user["first_name"] == name
+    user = UserResponse.model_validate(response.json())
+    assert user.first_name == name
 
     response = requests.patch(f"{app_url}/api/users/{user_id}",
                               json={"email": f'1{email}'})
     assert response.status_code == HTTPStatus.OK
-    user = response.json()
-    assert user["email"] == f'1{email}'
+    user = UserResponse.model_validate(response.json())
+    assert user.email == f'1{email}'
 
     response = requests.delete(f"{app_url}/api/users/{user_id}")
     assert response.status_code == HTTPStatus.OK
@@ -65,17 +68,14 @@ def test_crud(app_url):
 
 
 def test_get_after_create_and_update(app_url):
-    name, surname, email, avatar = generate_random_data()
-    response = requests.post(f"{app_url}/api/users/",
-                             json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
-    assert response.status_code == HTTPStatus.CREATED
-    user_id = response.json()["id"]
+    user, name, surname, email, avatar = create_user(app_url)
+    user_id = user.id
 
     # Get user after creation
     response = requests.get(f"{app_url}/api/users/{user_id}")
     assert response.status_code == HTTPStatus.OK
-    user = response.json()
-    assert user["first_name"] == name
+    user = UserResponse.model_validate(response.json())
+    assert user.first_name == name
 
     # Update user
     new_name = "UpdatedName"
@@ -86,8 +86,8 @@ def test_get_after_create_and_update(app_url):
     # Get user after update
     response = requests.get(f"{app_url}/api/users/{user_id}")
     assert response.status_code == HTTPStatus.OK
-    user = response.json()
-    assert user["first_name"] == new_name
+    user = UserResponse.model_validate(response.json())
+    assert user.first_name == new_name
 
 
 def test_method_not_allowed(app_url):
@@ -106,25 +106,19 @@ def test_delete_patch_errors(app_url):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
     # Create user
-    name, surname, email, avatar = generate_random_data()
-    response = requests.post(f"{app_url}/api/users/",
-                             json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
-    assert response.status_code == HTTPStatus.CREATED
-    user_id = response.json()["id"]
+    user, name, surname, email, avatar = create_user(app_url)
+    user_id = user.id
 
     # Test 422 on patch with invalid data
     response = requests.patch(f"{app_url}/api/users/{user_id}",
                               json={"email": "invalid-email"})
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY  # really 500
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 def test_404_on_deleted_user(app_url):
     # Create user
-    name, surname, email, avatar = generate_random_data()
-    response = requests.post(f"{app_url}/api/users/",
-                             json={"email": email, "first_name": name, "last_name": surname, "avatar": avatar})
-    assert response.status_code == HTTPStatus.CREATED
-    user_id = response.json()["id"]
+    user, name, surname, email, avatar = create_user(app_url)
+    user_id = user.id
 
     # Delete user
     response = requests.delete(f"{app_url}/api/users/{user_id}")
@@ -139,12 +133,18 @@ def test_validity_of_test_data(app_url):
     name, surname, email, avatar = generate_random_data()
     # Create user with invalid email
     response = requests.post(f"{app_url}/api/users/",
-                             json={"email": "invalid-email", "first_name": name, "last_name": surname, "avatar": avatar})
+                             json={"email": "invalid-email",
+                                   "first_name": name,
+                                   "last_name": surname,
+                                   "avatar": avatar})
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
     # Create user with invalid URL
     response = requests.post(f"{app_url}/api/users/",
-                             json={"email": email, "first_name": name, "last_name": surname, "avatar": "invalid-url"})
+                             json={"email": email,
+                                   "first_name": name,
+                                   "last_name": surname,
+                                   "avatar": "invalid-url"})
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
