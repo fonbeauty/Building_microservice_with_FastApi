@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List
-from models.user import User
+from app.models.user import User
 
 
 class PaginatedResponse(BaseModel):
