@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 pytest = "^8.3.2"
-fastapi = "^0.111.1"
+fastapi = {version = "^0.112.0", extras = ["standard"]}
 email-validator = "^2.2.0"
 python-dotenv = "^1.0.1"
 requests = "^2.32.3"
@@ -17,7 +17,7 @@ fastapi-pagination = "^0.12.26"
 psycopg2-binary = "^2.9.9"
 sqlalchemy = "^2.0.31"
 sqlmodel = "^0.0.21"
-faker = "^26.0.0"
+faker = "^26.1.0"
 pytest-order = "^1.2.1"
 
 
