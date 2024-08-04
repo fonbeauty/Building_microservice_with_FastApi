@@ -9,6 +9,7 @@ jobs:
     env:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      secrets: inherit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,10 +30,6 @@ jobs:
           && poetry install --no-interaction --no-ansi
       - run: docker compose build
       - run: docker compose up -d
-      - name: Check environment variables
-        run: |
-          echo "POSTGRES_USER: $POSTGRES_USER"
-          echo "POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
       - run: poetry run pytest --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
