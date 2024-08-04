@@ -7,8 +7,8 @@ jobs:
   common-tests:
     runs-on: ubuntu-latest
     env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci
       secrets: inherit
     steps:
       - uses: actions/checkout@v4
