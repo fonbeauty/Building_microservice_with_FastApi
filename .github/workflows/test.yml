@@ -17,9 +17,15 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'poetry'
+
+      - name: Install Poetry
+        run: pip install --no-cache-dir poetry
+
+      - name: Add Poetry to PATH
+        run: echo "${{ runner.tool_cache }}/python/3.12.0/x64/bin" >> $GITHUB_PATH
+
       - run: |
-          pip install --no-cache-dir poetry \
-          && poetry config virtualenvs.create false \
+          poetry config virtualenvs.create false \
           && poetry install --no-interaction --no-ansi
       - run: docker compose build
       - run: docker compose up -d
