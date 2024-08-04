@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       POSTGRES_USER: ci
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_PASSWORD: ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+          cache: 'poetry'
       - run: |
           pip install --no-cache-dir poetry \
           && poetry config virtualenvs.create false \
