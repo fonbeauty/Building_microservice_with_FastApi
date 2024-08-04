@@ -1,6 +1,7 @@
 name: Common Test Steps
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
   common-tests:
