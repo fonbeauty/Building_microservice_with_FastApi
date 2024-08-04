@@ -9,7 +9,6 @@ jobs:
     env:
       POSTGRES_USER: ci
       POSTGRES_PASSWORD: ci
-      secrets: inherit
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
