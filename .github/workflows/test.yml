@@ -1,0 +1,9 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tests:
+    uses: ./.github/workflows/common.yml
+
