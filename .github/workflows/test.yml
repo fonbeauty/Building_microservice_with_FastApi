@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'poetry'
-      - run: pip install --upgrade poetry
+      - run: pipx install poetry
       - run: poetry install
       - run: docker compose build
       - run: docker compose up -d
