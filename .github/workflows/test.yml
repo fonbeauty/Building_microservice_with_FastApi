@@ -5,44 +5,5 @@ on:
 
 jobs:
   tests:
-    name: Test app
-    runs-on: ubuntu-latest
-    env:
-      POSTGRES_USER: ci
-      POSTGRES_PASSWORD: ci
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-            ~/.cache/pip
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-      - run: |
-          pip install --no-cache-dir poetry \
-          && poetry config virtualenvs.create false \
-          && poetry install --no-interaction --no-ansi
-      - run: docker compose build
-      - run: docker compose up -d
-      - run: poetry run pytest --junit-xml=test-results.xml
-        env:
-          APP_URL: http://127.0.0.1:8002
+    uses: ./.github/workflows/common.yml
 
-      - run: docker compose logs app
-        if: always()
-
-      - name: Surface failing tests
-        if: always()
-        uses: pmeier/pytest-results-action@main
-        with:
-          path: test-results.xml
-          summary: true
-          display-options: fEX
-          fail-on-empty: true
-          title: Test results
