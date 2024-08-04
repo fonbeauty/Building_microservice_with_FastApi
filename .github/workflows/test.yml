@@ -12,16 +12,17 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v5
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'poetry'
+      - name: Install poetry
+        run: pipx install poetry
       - run: poetry config virtualenvs.create false
       - run: poetry install --no-interaction --no-ansi
-      - run: docker compose build
-      - run: docker compose up -d
+      - run: poetry run docker compose build
+      - run: poetry run docker compose up -d
       - run: sleep 10
       - run: poetry run pytest --junit-xml=test-results.xml
         env:
