@@ -41,6 +41,25 @@ jobs:
       - run: docker compose up -d
       - run: sleep 10
 
+      - name: Check server health
+        run: |
+          for i in {1..10}; do
+            if curl -s http://localhost:8002/ | grep -q '"message": "Service is running"'; then
+              echo "Server is running."
+              break
+            elif curl -s http://localhost:8002/status | grep -q '"database": true'; then
+              echo "Database is available."
+              break
+            else
+              echo "Waiting for server to start..."
+              sleep 5
+            fi
+          done
+          if [ $i -eq 10 ]; then
+            echo "Server did not start in time."
+            exit 1
+          fi
+
       - run: poetry run pytest --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
