@@ -16,8 +16,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'poetry'
-      - run: pipx install poetry
-      - run: poetry install
+      - run: pipx install --no-cache-dir poetry
+      - run: poetry config virtualenvs.create false
+      - run: poetry install --no-interaction --no-ansi
       - run: docker compose build
       - run: docker compose up -d
       - run: sleep 5
