@@ -1,3 +1,4 @@
+
 on:
   pull_request:
     branches:
@@ -13,36 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        id: setup-python
         with:
-          python-version: "3.12"
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-
+          python-version: '3.12'
+          cache: 'pip'
+      - run: |
+          pip install --no-cache-dir poetry \
+          && poetry config virtualenvs.create false \
+          && poetry install --no-interaction --no-ansi
       - run: docker compose build
       - run: docker compose up -d
-      - run: sleep 10
-
-      - run: poetry run pytest --junit-xml=test-results.xml
+      - run: sleep 5
+      - run: poetry pytest --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
 
-      - run: poetry run docker compose logs app
+      - run: docker compose logs app
         if: always()
 
       - name: Surface failing tests
