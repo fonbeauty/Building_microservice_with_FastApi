@@ -1,3 +1,4 @@
+
 on:
   pull_request:
     branches:
@@ -12,39 +13,18 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: "poetry"
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-          virtualenvs-create: true
-          virtualenvs-in-project: false
-          virtualenvs-path: { cache-dir }/virtualenvs
-          installer-parallel: true
-
-      - name: Load cached venv
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry install --no-interaction --no-root
-
+          python-version: '3.12'
+          cache: 'poetry'
+      - run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
       - run: docker compose build
       - run: docker compose up -d
       - run: sleep 5
-      - run: |
-          source .venv/bin/activate
-          poetry run pytest tests --junit-xml=test-results.xml
+      - run: pytest tests --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
 
