@@ -24,14 +24,13 @@ jobs:
       - run: poetry install --no-interaction --no-ansi
       - run: poetry run docker compose build
       - run: poetry run docker compose up -d
-      - run: sleep 10
+      - name: Wait for services to be up
+        run: sleep 20
       - run: poetry run pytest --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
-
       - run: poetry run docker compose logs app
         if: always()
-
       - name: Surface failing tests
         if: always()
         uses: pmeier/pytest-results-action@main
