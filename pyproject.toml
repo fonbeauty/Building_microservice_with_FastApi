@@ -29,4 +29,3 @@ build-backend = "poetry.core.masonry.api"
 markers = [
     "smoke: mark a test as a smoke test."
 ]
-pythonpath = '.'
