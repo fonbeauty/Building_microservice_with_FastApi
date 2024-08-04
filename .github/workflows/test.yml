@@ -22,8 +22,11 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
+          version: latest
           virtualenvs-create: true
-          virtualenvs-in-project: true
+          virtualenvs-in-project: false
+          virtualenvs-path: { cache-dir }/virtualenvs
+          installer-parallel: true
 
       - name: Load cached venv
         uses: actions/cache@v2
@@ -34,12 +37,14 @@ jobs:
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
-          poetry install --no-interaction --all-extras
+          poetry install --no-interaction --no-root
 
       - run: docker compose build
       - run: docker compose up -d
       - run: sleep 5
-      - run: poetry run pytest tests --junit-xml=test-results.xml
+      - run: |
+          source .venv/bin/activate
+          poetry run pytest tests --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
 
