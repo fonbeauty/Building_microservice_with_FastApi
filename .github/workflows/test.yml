@@ -12,10 +12,12 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'poetry'
+      - name: Install poetry
         run: pipx install poetry
       - run: poetry config virtualenvs.create false
       - run: poetry install --no-interaction --no-ansi
