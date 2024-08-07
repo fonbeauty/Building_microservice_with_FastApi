@@ -11,20 +11,6 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check POSTGRES_USER and POSTGRES_PASSWORD
-        run: |
-          if [ -z "$POSTGRES_USER" ]; then
-            echo "POSTGRES_USER is not set"
-            exit 1
-          else
-            echo "POSTGRES_USER is set"
-          fi
-          if [ -z "$POSTGRES_PASSWORD" ]; then
-            echo "POSTGRES_PASSWORD is not set"
-            exit 1
-          else
-            echo "POSTGRES_PASSWORD is set"
-          fi
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
