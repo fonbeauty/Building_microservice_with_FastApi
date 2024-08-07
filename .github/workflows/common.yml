@@ -6,6 +6,9 @@ on:
 jobs:
   common-tests:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: $${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: $${{ secrets.POSTGRES_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,7 +26,8 @@ jobs:
       - run: |
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-      - run: pip install --no-cache-dir poetry \
+      - run: |
+          pip install --no-cache-dir poetry \
           && poetry config virtualenvs.create false \
           && poetry install --no-interaction --no-ansi
       - run: docker compose build
