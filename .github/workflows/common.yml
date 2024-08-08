@@ -28,7 +28,13 @@ jobs:
           && poetry config virtualenvs.create false \
           && poetry install --no-interaction --no-ansi
       - run: docker compose build
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       - run: docker compose up -d
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       - run: poetry run pytest --junit-xml=test-results.xml
         env:
           APP_URL: http://127.0.0.1:8002
